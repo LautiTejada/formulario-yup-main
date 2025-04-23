@@ -10,7 +10,8 @@ const schema = yup.object().shape({
   nombre: yup.string().required("El nombre es obligatorio").min(3, "Mínimo 3 caracteres"),
   correo: yup.string().required("El correo es obligatorio").email("Correo inválido"),
   contraseña: yup.string().required("La contraseña es obligatoria").min(6, "Mínimo 6 caracteres"),
-  repetirContraseña: yup.string()
+  repetirContraseña: yup
+    .string()
     .oneOf([yup.ref("contraseña")], "Las contraseñas no coinciden")
     .required("Repetir contraseña es obligatorio"),
 });
@@ -34,16 +35,19 @@ export const Formulario = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
+
     try {
       await schema.validate(values, { abortEarly: false });
+      setErrors({});
+
       Swal.fire("Formulario enviado correctamente", "", "success");
+
       setValues({
         nombre: "",
         correo: "",
         contraseña: "",
         repetirContraseña: "",
       });
-      setErrors({});
       setSubmitted(false);
     } catch (err: any) {
       const newErrors: Record<string, string> = {};
@@ -54,7 +58,8 @@ export const Formulario = () => {
     }
   };
 
-  const hasErrors = Object.keys(errors).length > 0 || Object.values(values).some((v) => v === "");
+  const hasErrors =
+    Object.keys(errors).length > 0 || Object.values(values).some((v) => v === "");
 
   return (
     <form onSubmit={handleSubmit} className={styles.formulario}>
